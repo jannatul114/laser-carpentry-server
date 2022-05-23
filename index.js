@@ -23,6 +23,15 @@ async function run() {
             const result = await reviewCollection.find(query).toArray();
             res.send(result);
         })
+
+
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review)
+            res.send(result)
+        })
+
+
         app.get('/tools', async (req, res) => {
             const query = {};
             const result = await toolsCollection.find(query).toArray();
