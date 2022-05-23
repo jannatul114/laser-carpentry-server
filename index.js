@@ -15,6 +15,7 @@ async function run() {
     await client.connect();
     const reviewCollection = client.db("manufecturer").collection("reviews");
     const toolsCollection = client.db("manufecturer").collection("tools");
+    const orderssCollection = client.db("manufecturer").collection("orders");
 
 
     try {
@@ -28,6 +29,13 @@ async function run() {
         app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review)
+            res.send(result)
+        })
+
+
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const result = await orderssCollection.insertOne(order)
             res.send(result)
         })
 
