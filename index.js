@@ -27,12 +27,8 @@ function verifyJWT(req, res, next) {
         }
         req.decoded = decoded;
         next();
-
     });
-
-
 }
-
 
 async function run() {
     await client.connect();
@@ -51,6 +47,12 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await usersCollection.findOne({ email: email })
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin })
+        })
 
         app.post('/reviews', async (req, res) => {
             const review = req.body;
@@ -63,6 +65,28 @@ async function run() {
             const order = req.body;
             const result = await ordersCollection.insertOne(order)
             res.send(result)
+        })
+
+        app.get('/users', verifyJWT, async (req, res) => {
+            const users = await usersCollection.find().toArray()
+            res.send(users)
+        })
+
+        app.put('/users/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const request = req.decoded.email;
+            const requesterAccount = await usersCollection.findOne({ email: request })
+            if (requesterAccount.role === 'admin') {
+                const filter = { email: email }
+                const updatedDoc = {
+                    $set: { role: 'admin' },
+                }
+                const result = await usersCollection.updateOne(filter, updatedDoc)
+                res.send(result)
+            }
+
+            else { res.status(403).send({ message: 'forbidden' }) }
+
         })
 
 
